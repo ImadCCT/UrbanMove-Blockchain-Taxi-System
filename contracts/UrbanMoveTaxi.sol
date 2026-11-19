@@ -27,4 +27,30 @@ contract UrbanMoveTaxi {
     // Generate unique booking IDs
     uint256 public nextBookingId = 1;
 
+
+    // Events
+    event BookingCreated(
+        uint256 bookingId,
+        address passenger,
+        uint256 fare
+    );
+
+    event BookingAccepted(
+        uint256 bookingId,
+        address driver
+    );
+
+    event JourneyCompleted(
+        uint256 bookingId,
+        address driver,
+        uint256 fare
+    );
+
+    event BookingCancelled(
+        uint256 bookingId,
+        address passenger,
+        uint256 refund
+    );
+
+
 }
