@@ -53,4 +53,27 @@ contract UrbanMoveTaxi {
     );
 
 
+function createBooking() public payable {
+    require(msg.value > 0, "Fare must be greater than zero");
+
+    uint256 bookingId = nextBookingId;
+
+    bookings[bookingId] = Booking({
+        bookingId: bookingId,
+        passenger: msg.sender,
+        driver: address(0),
+        fare: msg.value,
+        status: BookingStatus.Requested
+    });
+
+    nextBookingId++;
+
+    emit BookingCreated(
+        bookingId,
+        msg.sender,
+        msg.value
+    );
+}
+
+
 }
