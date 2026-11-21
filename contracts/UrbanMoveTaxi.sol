@@ -75,5 +75,57 @@ function createBooking() public payable {
     );
 }
 
+// Accept an existing taxi booking
+function acceptBooking(uint256 _bookingId) public {
+
+    require(
+        _bookingId > 0 && _bookingId < nextBookingId,
+        "Booking does not exist"
+    );
+
+    Booking storage booking = bookings[_bookingId];
+
+    require(
+        booking.status == BookingStatus.Requested,
+        "Booking is not available"
+    );
+
+    booking.driver = msg.sender;
+    booking.status = BookingStatus.Accepted;
+
+    emit BookingAccepted(_bookingId, msg.sender);
+}
+
+// Complete a taxi journey and release the fare payment
+function completeJourney(uint256 _bookingId) public {
+    require(
+        _bookingId > 0 && _bookingId < nextBookingId,
+        "Booking does not exist"
+    );
+
+    Booking storage booking = bookings[_bookingId];
+
+    require(
+        booking.status == BookingStatus.Accepted,
+        "Booking is not active"
+    );
+
+    require(
+        msg.sender == booking.driver,
+        "Only the assigned driver can complete the journey"
+    );
+
+    booking.status = BookingStatus.Completed;
+
+    (bool success, ) = payable(booking.driver).call{value: booking.fare}("");
+    require(success, "Payment transfer failed");
+
+    emit JourneyCompleted(
+        _bookingId,
+        booking.driver,
+        booking.fare
+    );
+}
+
 
 }
