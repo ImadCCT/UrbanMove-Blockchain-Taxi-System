@@ -127,5 +127,36 @@ function completeJourney(uint256 _bookingId) public {
     );
 }
 
+// Cancel an existing taxi booking
+function cancelBooking(uint256 _bookingId) public {
+    require(
+        _bookingId > 0 && _bookingId < nextBookingId,
+        "Booking does not exist"
+    );
+
+    Booking storage booking = bookings[_bookingId];
+
+    require(
+        msg.sender == booking.passenger,
+        "Only the passenger can cancel"
+    );
+
+    require(
+        booking.status == BookingStatus.Requested ||
+        booking.status == BookingStatus.Accepted,
+        "Booking cannot be cancelled"
+    );
+
+    booking.status = BookingStatus.Cancelled;
+    (bool success, ) = payable(booking.passenger).call{value: booking.fare}("");
+require(success, "Refund transfer failed");
+
+    emit BookingCancelled(
+        _bookingId,
+        booking.passenger,
+        booking.fare
+    );
+}
+
 
 }
