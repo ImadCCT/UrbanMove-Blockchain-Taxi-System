@@ -90,6 +90,11 @@ function acceptBooking(uint256 _bookingId) public {
         "Booking is not available"
     );
 
+    require(
+    msg.sender != booking.passenger,
+    "Passenger cannot accept their own booking"
+);
+
     booking.driver = msg.sender;
     booking.status = BookingStatus.Accepted;
 
