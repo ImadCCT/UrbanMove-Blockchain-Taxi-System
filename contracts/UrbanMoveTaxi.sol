@@ -27,6 +27,15 @@ contract UrbanMoveTaxi {
     // Generate unique booking IDs
     uint256 public nextBookingId = 1;
 
+    bool private locked;
+
+modifier nonReentrant() {
+    require(!locked, "Reentrant call");
+    locked = true;
+    _;
+    locked = false;
+}
+
 
     // Events
     event BookingCreated(
@@ -102,7 +111,7 @@ function acceptBooking(uint256 _bookingId) public {
 }
 
 // Complete a taxi journey and release the fare payment
-function completeJourney(uint256 _bookingId) public {
+function completeJourney(uint256 _bookingId) public nonReentrant {
     require(
         _bookingId > 0 && _bookingId < nextBookingId,
         "Booking does not exist"
@@ -133,7 +142,7 @@ function completeJourney(uint256 _bookingId) public {
 }
 
 // Cancel an existing taxi booking
-function cancelBooking(uint256 _bookingId) public {
+function cancelBooking(uint256 _bookingId) public nonReentrant {
     require(
         _bookingId > 0 && _bookingId < nextBookingId,
         "Booking does not exist"
